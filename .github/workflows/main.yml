@@ -1,0 +1,36 @@
+name: Keycloak QA Tests
+
+on:
+  push:
+    branches:
+      - working
+  pull_request:
+    branches:
+      - working
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Run tests
+        run: mvn -q -DskipTests=false test
+
+      - name: Upload Failed Test Artifacts
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-artifacts
+          path: |
+            **/target/surefire-reports/
+            **/target/logs/
+            **/artifacts/screenshots/
